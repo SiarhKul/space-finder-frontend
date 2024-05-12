@@ -1,27 +1,31 @@
 import './App.css'
-import { Outlet, RouterProvider, createBrowserRouter } from 'react-router-dom';
+import {Outlet, RouterProvider, createBrowserRouter} from 'react-router-dom';
 import NavBar from './components/NavBar';
-import { useState } from 'react';
+import {useState} from 'react';
+import LoginComponent from "./components/LoginComponents.tsx";
+import {AuthService} from "./services/AuthService.ts";
 
 function App() {
-  const [userName] = useState<string | undefined>(undefined);
+  const [userName, setUserName] = useState<string | undefined>(undefined);
+
+  const authService = new AuthService()
 
   const router = createBrowserRouter([
     {
       element: (
         <>
           <NavBar userName={userName}/>
-          <Outlet />
+          <Outlet/>
         </>
       ),
-      children:[
+      children: [
         {
           path: "/",
           element: <div>Hello world!</div>,
         },
         {
           path: "/login",
-          element: <div>Login page</div>,
+          element: <LoginComponent setUserNameCb={setUserName} authService={authService}/>,
         },
         {
           path: "/profile",
@@ -41,7 +45,7 @@ function App() {
 
   return (
     <div className="wrapper">
-      <RouterProvider router={router} />
+      <RouterProvider router={router}/>
     </div>
   )
 }
