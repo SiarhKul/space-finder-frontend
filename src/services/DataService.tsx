@@ -1,6 +1,8 @@
 import {AuthService} from "./AuthService.ts";
 import {PutObjectCommand, S3Client} from "@aws-sdk/client-s3";
-import {DataStack} from '../../../space-finder/outputs.json'
+import {DataStack, ApiStack} from '../../../space-finder/outputs.json'
+
+const spacesUrl = ApiStack.SpacesApiEndpoint36C4F3B6 + 'space'
 
 export class DataService {
 
@@ -12,18 +14,36 @@ export class DataService {
         this.authService = authService
     }
 
-    public async createSpace(name: string,
-                             location: string,
-                             photo?: File) {
-        if (photo) {
-            const uploadUrl = await this.uploadPublicFile(photo)
-            console.log("=>(DataService.tsx:21) uploadUrl", uploadUrl);
-        }
-
-        return '123'
+    public isAuthorized() {
+        return true;
     }
 
+    public async createSpace(name: string,
+                             location: string,
+                             photo?: File): Promise<string> {
+        const space: Record<string, unknown> = {}
+        space.name = name
+        space.location = location
 
+        if (photo) {
+            const uploadUrl = await this.uploadPublicFile(photo)
+            space.photo = uploadUrl
+        }
+
+        const postResult = await fetch(spacesUrl, {
+            method: "POST",
+            body: JSON.stringify(space),
+            headers: {
+                'Authorization': this.authService.jwtToken ?? ''
+            }
+        })
+
+        const postResultJSON = await postResult.json()
+
+        return postResultJSON.id
+    }
+
+    //-------------------------PRIVET
     private async uploadPublicFile(file: File) {
         const credantions = await this.authService.getTemporaryCredentials()
 
@@ -47,7 +67,4 @@ export class DataService {
     }
 
 
-    public isAuthorized() {
-        return true;
-    }
 }
