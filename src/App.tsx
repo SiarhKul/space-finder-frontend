@@ -6,6 +6,7 @@ import LoginComponent from "./components/LoginComponents.tsx";
 import {AuthService} from "./services/AuthService.ts";
 import {DataService} from "./services/DataService.tsx";
 import CreateSpace from "./components/spaces/CreateSpace.tsx";
+import Spaces from "./components/spaces/Spaces.tsx";
 
 const authService = new AuthService()
 const dataService = new DataService(authService)
@@ -40,7 +41,7 @@ function App() {
         },
         {
           path: "/spaces",
-          element: <div>Spaces page </div>,
+          element: <Spaces dataService={dataService}/>,
         },
       ]
     },
